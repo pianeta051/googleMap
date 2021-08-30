@@ -1,0 +1,44 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#mapa {
+    height: 100%;
+    z-index: 0;
+}
+
+#comenzar-ruta,
+#finalizar-ruta,
+#punto-intermedio {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px;
+    z-index: 400;
+    display: none;
+}
+
+#punto-intermedio {
+    top: 60px !important;
+}
+
+#distancia {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    border: 1px solid black;
+    padding: 5px;
+    background-color: white;
+    z-index: 1;
+}
+
+#comenzar-ruta.visible,
+#finalizar-ruta.visible,
+#distancia.visible,
+#punto-intermedio.visible {
+    display: block;
+}
