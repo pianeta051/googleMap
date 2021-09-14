@@ -5,18 +5,21 @@ const endNavigationButton = document.getElementById('finalizar-ruta');
 const midPointButton = document.getElementById('punto-intermedio');
 const divDistance = document.getElementById('distancia');
 const divTime = document.getElementById('tiempo');
-const divVelocidad = document.getElementById('velocidad');
+const didAverageSpeed = document.getElementById('velocidad');
 const places = [];
 let longitude = 0;
 let latitude = 0;
 let initialTime = 0;
 let distance = 0;
 let finalTime = 0;
-L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-    id: 'mapbox/streets-v11',
-}).addTo(map);
-startNavigationButton.classList.add('visible');
 
+
+const setNavigation = () => {
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+        id: 'mapbox/streets-v11',
+    }).addTo(map);
+    startNavigationButton.classList.add('visible');
+};
 
 const startRoute = ({ coords, timestamp }) => {
     startNavigationButton.classList.remove('visible');
@@ -36,6 +39,15 @@ const endRoute = ({ coords, timestamp }) => {
     drawLine();
     finalTime = timestamp;
     displayAverageSpeed();
+    otherRoute();
+    map.remove();
+    setNavigation();
+};
+
+const otherRoute = () => {
+    startNavigationButton.classList.add('visible');
+    midPointButton.classList.remove('visible');
+    endNavigationButton.classList.remove('visible');
 };
 
 startNavigationButton.addEventListener('click', () => getPosition(startRoute));
@@ -65,20 +77,22 @@ const displayDistance = () => {
 };
 
 const displayAverageSpeed = () => {
-    //v=d/t  m/s
+    let startDate = new Date(initialTime);
+    startDate = startDate.toISOString();
 
-    const startDate = new Date(initialTime);
-    const finalDate = new Date(finalTime);
-    var end = DateTime.fromISO(finalDate);
-    var start = DateTime.fromISO(startDate);
+    let finalDate = new Date(finalTime);
+    finalDate = finalDate.toISOString();
+    const end = DateTime.fromISO(finalDate);
+    const start = DateTime.fromISO(startDate);
 
-    var diffInMonths = end.diff(start, 'months');
-    diffInMonths.as('days');
+    // let difference = end.diff(start, ['hours', 'minutes', 'seconds']).toObject();
+    let difference = end.diff(start);
+    const diffHours = difference.as('hours');
 
-    console.log(finalTime);
-    console.log(initialTime);
-    console.log(diffInMonths.as('days'));
-    //const speed = 
+    const speed = distance / diffHours;
+    didAverageSpeed.innerHTML = `La velocidad promedio es ${speed} Km/h`;
+    didAverageSpeed.classList.add('visible');
+    //console.log(`La velocidad promedio es ${speed} Km/h`);
 };
 
 const distanceInKmBetweenEarthCoordinates = (lat1, lon1, lat2, lon2) => {
@@ -101,6 +115,11 @@ const drawLine = () => {
     map.fitBounds(polyline.getBounds());
 };
 
+const removeLine = () => {
+    const polyline = L.polyline(places, ).removeFrom(map);
+    map.fitBounds(polyline.getBounds());
+};
+
 const getPosition = (callback) => navigator.geolocation.getCurrentPosition(callback);
 
 const setPoint = (coords, timestamp) => {
@@ -111,3 +130,5 @@ const setPoint = (coords, timestamp) => {
     const date = new Date(timestamp);
     console.log(`Ha pasado por la posicion ${latitude +' '+ longitude} la fecha: ${date}`);
 };
+
+setNavigation();
